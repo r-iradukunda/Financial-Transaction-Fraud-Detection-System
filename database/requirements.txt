@@ -1,0 +1,11 @@
+# Database Requirements
+# Add these to your main requirements.txt
+
+# MongoDB Driver
+pymongo>=4.5.0
+
+# Optional: For connection pooling optimization
+motor>=3.3.0  # Async MongoDB driver (optional)
+
+# For environment variable management
+python-dotenv>=1.0.0

@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection - Test Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .form-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .row .form-group {
+            margin-bottom: 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result.fraud {
+            background: #fee;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .result.legitimate {
+            background: #efe;
+            border-left: 4px solid #27ae60;
+        }
+
+        .result h3 {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item strong {
+            color: #333;
+        }
+
+        .fraud-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #e74c3c;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .legitimate-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: #27ae60;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .risk-high {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .risk-medium {
+            color: #f39c12;
+            font-weight: 600;
+        }
+
+        .risk-low {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .action-button {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .action-button:hover {
+            background: #5568d3;
+        }
+
+        .template-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .template-btn {
+            flex: 1;
+            padding: 10px;
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            transition: all 0.3s;
+        }
+
+        .template-btn:hover {
+            background: #e8f0ff;
+            border-color: #667eea;
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            border-radius: 6px;
+            color: #c0392b;
+            font-size: 13px;
+            margin-top: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔒 Fraud Detection Test</h1>
+            <p>Test transaction predictions in real-time</p>
+        </header>
+
+        <div class="content">
+            <!-- Form Section -->
+            <div class="form-section">
+                <h2>Enter Transaction Data</h2>
+
+                <div class="template-buttons">
+                    <button class="template-btn" onclick="loadTemplate('legitimate')">Legitimate</button>
+                    <button class="template-btn" onclick="loadTemplate('suspicious')">Suspicious</button>
+                </div>
+
+                <form id="transactionForm">
+                    <!-- Transaction Info -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" id="amount" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Transaction Type</label>
+                            <select id="txType" required>
+                                <option value="">Select...</option>
+                                <option value="Withdrawal">Withdrawal</option>
+                                <option value="Deposit">Deposit</option>
+                                <option value="Transfer">Transfer</option>
+                                <option value="Purchase">Purchase</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Date & Time -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Transaction Date</label>
+                            <input type="text" id="date" placeholder="DD/MM/YYYY HH:MM" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Previous Transaction</label>
+                            <input type="text" id="prevDate" placeholder="DD/MM/YYYY HH:MM" required>
+                        </div>
+                    </div>
+
+                    <!-- Location & Channel -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="location" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Channel</label>
+                            <select id="channel" required>
+                                <option value="">Select...</option>
+                                <option value="ATM">ATM</option>
+                                <option value="Online">Online</option>
+                                <option value="Mobile">Mobile</option>
+                                <option value="Branch">Branch</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Customer Info -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Customer Age</label>
+                            <input type="number" id="age" min="18" max="120" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Occupation</label>
+                            <input type="text" id="occupation" required>
+                        </div>
+                    </div>
+
+                    <!-- Account Info -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Account Balance ($)</label>
+                            <input type="number" id="balance" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Account Status</label>
+                            <select id="accountStatus" required>
+                                <option value="">Select...</option>
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                                <option value="Flagged">Flagged</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Transaction Details -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Duration (seconds)</label>
+                            <input type="number" id="duration" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Login Attempts</label>
+                            <input type="number" id="loginAttempts" min="0" required>
+                        </div>
+                    </div>
+
+                    <!-- Geographic Info -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Sender Country</label>
+                            <input type="text" id="senderCountry" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Receiver Country</label>
+                            <input type="text" id="receiverCountry" required>
+                        </div>
+                    </div>
+
+                    <!-- Currency Info -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>Sender Currency</label>
+                            <input type="text" id="senderCurrency" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Receiver Currency</label>
+                            <input type="text" id="receiverCurrency" required>
+                        </div>
+                    </div>
+
+                    <!-- PIN Status -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label>PIN Status</label>
+                            <select id="pinStatus" required>
+                                <option value="">Select...</option>
+                                <option value="Valid">Valid</option>
+                                <option value="Invalid">Invalid</option>
+                                <option value="Locked">Locked</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>PIN Retry Limit</label>
+                            <input type="number" id="pinLimit" min="0" required>
+                        </div>
+                    </div>
+
+                    <!-- PIN Retry Count -->
+                    <div class="form-group">
+                        <label>PIN Retry Count</label>
+                        <input type="number" id="pinCount" min="0" required>
+                    </div>
+
+                    <button type="submit">Predict Fraud Risk</button>
+
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>Analyzing transaction...</p>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section">
+                <h2>Prediction Result</h2>
+                
+                <div class="result" id="result">
+                    <p style="color: #999; font-size: 13px;">Submit a transaction to see results here</p>
+                </div>
+
+                <div class="error" id="error" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api/predict';
+
+        const templates = {
+            legitimate: {
+                amount: 150.00,
+                txType: 'Withdrawal',
+                date: '15/09/2024 14:30',
+                prevDate: '10/09/2024 10:20',
+                location: 'New York',
+                channel: 'ATM',
+                age: 35,
+                occupation: 'Teacher',
+                balance: 5000.00,
+                accountStatus: 'Active',
+                duration: 45,
+                loginAttempts: 1,
+                senderCountry: 'USA',
+                receiverCountry: 'USA',
+                senderCurrency: 'USD',
+                receiverCurrency: 'USD',
+                pinStatus: 'Valid',
+                pinLimit: 3,
+                pinCount: 0
+            },
+            suspicious: {
+                amount: 5000.00,
+                txType: 'Transfer',
+                date: '19/09/2024 23:45',
+                prevDate: '19/09/2024 23:30',
+                location: 'Chicago',
+                channel: 'Online',
+                age: 19,
+                occupation: 'Student',
+                balance: 5500.00,
+                accountStatus: 'Flagged',
+                duration: 250,
+                loginAttempts: 6,
+                senderCountry: 'USA',
+                receiverCountry: 'Germany',
+                senderCurrency: 'USD',
+                receiverCurrency: 'EUR',
+                pinStatus: 'Locked',
+                pinLimit: 3,
+                pinCount: 3
+            }
+        };
+
+        function loadTemplate(templateName) {
+            const template = templates[templateName];
+            if (template) {
+                document.getElementById('amount').value = template.amount;
+                document.getElementById('txType').value = template.txType;
+                document.getElementById('date').value = template.date;
+                document.getElementById('prevDate').value = template.prevDate;
+                document.getElementById('location').value = template.location;
+                document.getElementById('channel').value = template.channel;
+                document.getElementById('age').value = template.age;
+                document.getElementById('occupation').value = template.occupation;
+                document.getElementById('balance').value = template.balance;
+                document.getElementById('accountStatus').value = template.accountStatus;
+                document.getElementById('duration').value = template.duration;
+                document.getElementById('loginAttempts').value = template.loginAttempts;
+                document.getElementById('senderCountry').value = template.senderCountry;
+                document.getElementById('receiverCountry').value = template.receiverCountry;
+                document.getElementById('senderCurrency').value = template.senderCurrency;
+                document.getElementById('receiverCurrency').value = template.receiverCurrency;
+                document.getElementById('pinStatus').value = template.pinStatus;
+                document.getElementById('pinLimit').value = template.pinLimit;
+                document.getElementById('pinCount').value = template.pinCount;
+            }
+        }
+
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                TransactionAmount: parseFloat(document.getElementById('amount').value),
+                TransactionDate: document.getElementById('date').value,
+                TransactionType: document.getElementById('txType').value,
+                Location: document.getElementById('location').value,
+                Channel: document.getElementById('channel').value,
+                CustomerAge: parseInt(document.getElementById('age').value),
+                CustomerOccupation: document.getElementById('occupation').value,
+                TransactionDuration: parseInt(document.getElementById('duration').value),
+                LoginAttempts: parseInt(document.getElementById('loginAttempts').value),
+                AccountBalance: parseFloat(document.getElementById('balance').value),
+                PreviousTransactionDate: document.getElementById('prevDate').value,
+                'Sender Country': document.getElementById('senderCountry').value,
+                'Receiver Country': document.getElementById('receiverCountry').value,
+                'Sender Currency': document.getElementById('senderCurrency').value,
+                'Receiver Currency': document.getElementById('receiverCurrency').value,
+                'Account Status': document.getElementById('accountStatus').value,
+                'Invalid Pin Status': document.getElementById('pinStatus').value,
+                'Invalid pin retry limits': parseInt(document.getElementById('pinLimit').value),
+                'Invalid pin retry count': parseInt(document.getElementById('pinCount').value)
+            };
+
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('result').classList.remove('show');
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                document.getElementById('loading').style.display = 'none';
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+
+                if (result.success) {
+                    displayResult(result.prediction, result.transaction, result.recommendation);
+                } else {
+                    showError(result.error || 'Prediction failed');
+                }
+            } catch (error) {
+                document.getElementById('loading').style.display = 'none';
+                console.error('Error:', error);
+                showError(`Connection error: ${error.message}`);
+            }
+        });
+
+        function displayResult(prediction, transaction, recommendation) {
+            const isFraud = prediction.is_fraud;
+            const resultDiv = document.getElementById('result');
+            const resultClass = isFraud ? 'fraud' : 'legitimate';
+            const badge = isFraud ? 
+                `<span class="fraud-badge">⚠️ FRAUD DETECTED</span>` :
+                `<span class="legitimate-badge">✓ LEGITIMATE</span>`;
+
+            const riskClass = prediction.risk_level === 'High' ? 'risk-high' : 
+                             prediction.risk_level === 'Medium' ? 'risk-medium' : 'risk-low';
+
+            const html = `
+                ${badge}
+                <h3>Transaction: $${transaction.amount.toFixed(2)} - ${transaction.type}</h3>
+                <div class="result-item">
+                    <strong>Prediction:</strong>
+                    <span>${prediction.fraud_label}</span>
+                </div>
+                <div class="result-item">
+                    <strong>Fraud Probability:</strong>
+                    <span>${prediction.probability.toFixed(2)}%</span>
+                </div>
+                <div class="result-item">
+                    <strong>Risk Level:</strong>
+                    <span class="${riskClass}">${prediction.risk_level}</span>
+                </div>
+                <div class="result-item">
+                    <strong>Confidence:</strong>
+                    <span>${prediction.confidence.toFixed(2)}%</span>
+                </div>
+                <div class="result-item">
+                    <strong>Action Required:</strong>
+                    <span><strong style="color: ${recommendation.action === 'BLOCK' ? '#e74c3c' : recommendation.action === 'REVIEW' ? '#f39c12' : '#27ae60'}">${recommendation.action}</strong></span>
+                </div>
+            `;
+
+            resultDiv.innerHTML = html;
+            resultDiv.classList.add(resultClass);
+            resultDiv.classList.add('show');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        // Load legitimate template on page load
+        window.addEventListener('load', () => {
+            loadTemplate('legitimate');
+        });
+    </script>
+</body>
+</html>
